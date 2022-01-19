@@ -1,6 +1,11 @@
+//import {readFileSync} from 'fs';
+//import toml from 'toml';
+
+//const config = toml.parse(readFileSync('./serve_conf.toml','utf-8'));
+//console.log(config);
+
 async function serve(
-	port = 5000,
-	path = 'src/index.html',
+	scope = 'parent',
 	kill = 'kill',
 	custom = 'default'
 ) {
@@ -10,9 +15,16 @@ async function serve(
 
 	const { Server } = await import('socket.io');
 
+	const { readFileSync } = await import('fs');
+	const toml = await import('toml');
+
 	const http = await import('http');
 	const hdf = f2p(import.meta.url);
 	const hdr = dropDir(dropDir(hdf)); //trims the last two files off of the file path
+
+	const config = toml.parse(readFileSync(`${hdr}/serve_conf.toml`,'utf-8'));
+	const port = config[scope].port;
+	const path = config[scope].dir;
 
 	const app = express();
 	const server = http.createServer(app);
